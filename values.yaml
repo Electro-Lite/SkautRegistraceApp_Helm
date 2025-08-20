@@ -1,0 +1,23 @@
+replicaCount: 1
+
+
+spring_image:
+  repository: electro3lite/skautregistrace-spring
+  pullPolicy: IfNotPresent
+  tag: latest
+
+postgres:
+  repository: postgres
+  pullPolicy: IfNotPresent
+  tag: 16-alpine
+  password: "k=L%sT*easer"
+
+service:
+  type: NodePort
+  port: 8080
+serviceAccount:
+  create: false
+  name: ""
+ingress:
+  enabled: false
+

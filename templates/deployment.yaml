@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "SkautRegistraceChart.fullname" . }}
+  labels:
+    {{- include "SkautRegistraceChart.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "SkautRegistraceChart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "SkautRegistraceChart.name" . }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: '{{ printf "%s:%s" .Values.spring_image.repository .Values.spring_image.tag }}'
+          imagePullPolicy: {{ .Values.spring_image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POSTGRES_URL
+              value: "jdbc:postgresql://localhost:5432/vlcatashed"
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+
+        - name: postgres
+          image: '{{ printf "%s:%s" .Values.postgres.repository .Values.postgres.tag }}'
+          imagePullPolicy: {{ .Values.postgres.pullPolicy }}
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "{{ .Values.postgres.password }}"
+            - name: POSTGRES_DB
+              value: "vlcatashed"
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/postgresql/data
+
+      volumes:
+        - name: db-data
+          emptyDir: {}
+
