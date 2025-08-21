@@ -10,7 +10,9 @@ postgres:
   repository: postgres
   pullPolicy: IfNotPresent
   tag: 16-alpine
-  password: "k=L%sT*easer"
+  user: "postgres"
+  password: "changeMe" # intended to be rewriten with --set postgres.password="ActualPwd"
+  db: "vlcatashed"
 
 service:
   type: NodePort
@@ -20,4 +22,5 @@ serviceAccount:
   name: ""
 ingress:
   enabled: false
+
 
