@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "SkautRegistraceChart.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ .Values.spring.service.name }}:{{ .Values.spring.service.port }}']
   restartPolicy: Never

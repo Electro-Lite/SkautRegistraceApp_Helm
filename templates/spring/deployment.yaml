@@ -24,12 +24,13 @@ spec:
             - containerPort: 8080
           env:
             - name: POSTGRES_URL
-              value: "jdbc:postgresql://postgres-service:5432/vlcatashed"
+              value: "jdbc:postgresql://{{ .Values.postgres.service.name }}:{{ .Values.postgres.service.port }}/{{ .Values.postgres.db }}"
+              #value: "jdbc:postgresql://postgres-service:5432/vlcatashed"
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.postgres.secret.name }}
-                  key:  {{ .Values.postgres.secret.key }}
+                  key: {{ .Values.postgres.secret.key }}
 
           ### PROBES ###
           startupProbe:

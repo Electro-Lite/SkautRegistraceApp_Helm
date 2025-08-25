@@ -2,8 +2,16 @@
 spring:
   repository: electro3lite/skautregistrace-spring
   pullPolicy: IfNotPresent
-  tag: latest
+  tag: latest #for local test only, in prod should be version number
   replicaCount: 1
+
+  service:
+    name: "spring-service"
+    type: NodePort
+    protocol: "TCP"
+    port: 8080
+    targetPort: 8080
+    nodePort: 30000
 
 postgres:
   repository: postgres
@@ -16,15 +24,19 @@ postgres:
   secret: # the secret should be created before helm install, kubectl craete secret generic pwd-postgres --from-literal=POSTGRES_PASSWORD ="changeMe"
     name: pwd-postgres
     key:  POSTGRES_PASSWORD
-service:
-  type: NodePort
-  port: 8080
+
+  service:
+    name: "postgres-service"
+    clusterIP: None
+    protocol: "TCP"
+    port: 5432
+    targetPort: 5432
+
 serviceAccount:
   create: false
   name: ""
 ingress:
   enabled: false
-
 
 resources:
   spring:

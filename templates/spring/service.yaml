@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "spring-service"
+  name: {{ .Values.spring.service.name }}
 spec:
-  type: NodePort
+  type: {{ .Values.spring.service.type }}
   selector:
     app: {{ include "SkautRegistraceChart.name" . }}-spring
   ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
-      nodePort: 30000
+    - protocol: {{ .Values.spring.service.protocol }}
+      port: {{ .Values.spring.service.port }}
+      targetPort: {{ .Values.spring.service.targetPort }}
+      nodePort: {{ .Values.spring.service.nodePort }}
 #  sessionAffinity: ClientIP # Sticky Ip session

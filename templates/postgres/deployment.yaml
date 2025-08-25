@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: {{ include "SkautRegistraceChart.name" . }}-postgres
-  serviceName: {{ include "SkautRegistraceChart.fullname" . }}-postgres
+  serviceName: "postgres-service"
   template:
     metadata:
       labels:
@@ -21,6 +21,8 @@ spec:
           imagePullPolicy: {{ .Values.postgres.pullPolicy }}
           ports:
             - containerPort: 5432
+          resources:
+            {{- toYaml .Values.resources.postgres | nindent 12 }}
           env:
             - name: POSTGRES_USER
               value: "{{ .Values.postgres.user }}"
@@ -28,13 +30,33 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.postgres.secret.name }}
-                  key:  {{ .Values.postgres.secret.key }}
-#              value: "{{ .Values.postgres.password }}"
+                  key: {{ .Values.postgres.secret.key }}
             - name: POSTGRES_DB
               value: "{{ .Values.postgres.db }}"
           volumeMounts:
             - name: db-data
               mountPath: /var/lib/postgresql/data
+
+          ### Probes ###
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "pg_isready -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\""
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+
   volumeClaimTemplates:
     - metadata:
         name: db-data
@@ -43,4 +65,6 @@ spec:
         resources:
           requests:
             storage: 1Gi
+        # Optional: make storageClass configurable
+        # storageClassName: {{ .Values.postgres.storageClass | default "" }}
 
