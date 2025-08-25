@@ -5,7 +5,7 @@ metadata:
   labels:
     {{- include "SkautRegistraceChart.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.spring.replicaCount }}
   selector:
     matchLabels:
       app: {{ include "SkautRegistraceChart.name" . }}-spring
@@ -16,12 +16,41 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
-          image: '{{ printf "%s:%s" .Values.spring_image.repository .Values.spring_image.tag }}'
-          imagePullPolicy: {{ .Values.spring_image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources.spring | nindent 12 }}
+          image: '{{ printf "%s:%s" .Values.spring.repository .Values.spring.tag }}'
+          imagePullPolicy: {{ .Values.spring.pullPolicy }}
           ports:
             - containerPort: 8080
           env:
             - name: POSTGRES_URL
               value: "jdbc:postgresql://postgres-service:5432/vlcatashed"
             - name: POSTGRES_PASSWORD
-              value: "{{ .Values.postgres.password }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secret.name }}
+                  key:  {{ .Values.postgres.secret.key }}
+
+          ### PROBES ###
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8080
+            failureThreshold: 300
+            periodSeconds: 10
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 1
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            failureThreshold: 2

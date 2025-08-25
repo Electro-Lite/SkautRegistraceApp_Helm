@@ -1,14 +1,15 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "SkautRegistraceChart.fullname" . }}-postgres
   labels:
     {{- include "SkautRegistraceChart.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.postgres.replicaCount }}
   selector:
     matchLabels:
       app: {{ include "SkautRegistraceChart.name" . }}-postgres
+  serviceName: {{ include "SkautRegistraceChart.fullname" . }}-postgres
   template:
     metadata:
       labels:
@@ -24,13 +25,22 @@ spec:
             - name: POSTGRES_USER
               value: "{{ .Values.postgres.user }}"
             - name: POSTGRES_PASSWORD
-              value: "{{ .Values.postgres.password }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secret.name }}
+                  key:  {{ .Values.postgres.secret.key }}
+#              value: "{{ .Values.postgres.password }}"
             - name: POSTGRES_DB
               value: "{{ .Values.postgres.db }}"
           volumeMounts:
             - name: db-data
               mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: db-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
 
-      volumes:
-        - name: db-data
-          emptyDir: {}

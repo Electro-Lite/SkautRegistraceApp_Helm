@@ -1,19 +1,21 @@
-replicaCount: 1
 
-
-spring_image:
+spring:
   repository: electro3lite/skautregistrace-spring
   pullPolicy: IfNotPresent
   tag: latest
+  replicaCount: 1
 
 postgres:
   repository: postgres
   pullPolicy: IfNotPresent
   tag: 16-alpine
+  replicaCount: 1
   user: "postgres"
-  password: "changeMe" # intended to be rewriten with --set postgres.password="ActualPwd"
+  #password: "changeMe" # intended to be rewriten with --set postgres.password="ActualPwd"
   db: "vlcatashed"
-
+  secret: # the secret should be created before helm install, kubectl craete secret generic pwd-postgres --from-literal=POSTGRES_PASSWORD ="changeMe"
+    name: pwd-postgres
+    key:  POSTGRES_PASSWORD
 service:
   type: NodePort
   port: 8080
@@ -24,3 +26,18 @@ ingress:
   enabled: false
 
 
+resources:
+  spring:
+    requests:
+      cpu: 100m
+      memory: 450Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  postgres:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
