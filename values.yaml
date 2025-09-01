@@ -67,7 +67,7 @@ postgresCluster:
         replica: "acid-minimal-cluster-repl"
     service:
       name: pgpool-service
-      port: 5432
+      port: 9999
 serviceAccount:
   create: false
   name: ""

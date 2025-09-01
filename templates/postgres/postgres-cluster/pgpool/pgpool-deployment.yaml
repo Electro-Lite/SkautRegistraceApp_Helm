@@ -17,7 +17,7 @@ spec:
         - name: pgpool
           image: "{{ .Values.postgresCluster.pgpool.image.repository }}:{{ .Values.postgresCluster.pgpool.image.tag }}"
           ports:
-            - containerPort: 5432
+            - containerPort: 9999
           env:
             # Backends
             - name: PGPOOL_PARAMS_BACKEND_HOSTNAME0
@@ -53,8 +53,18 @@ spec:
             # Pgpool-II behavior flags
 #            - name: PGPOOL_DATABASE
 #              value: "postgres"
+            - name: PGPOOL_PARAMS_health_check_user
+              valueFrom:
+                secretKeyRef:
+                  name: "postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do"
+                  key: username
+            - name: PGPOOL_PARAMS_health_check_password
+              valueFrom:
+                secretKeyRef:
+                  name: "postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do"
+                  key: password
             - name: PGPOOL_SERVICE_PORT
-              value: "5432"
+              value: "9999"
             - name: PGPOOL_ENABLE_LOAD_BALANCE
               value: "true"
             - name: PGPOOL_ENABLE_POOL_HBA
