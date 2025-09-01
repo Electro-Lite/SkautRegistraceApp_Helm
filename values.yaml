@@ -53,27 +53,6 @@ postgresCluster:
     bar: {}
   postgresqlVersion: "16"
 
-  pgpool:
-    name: pgpool
-    replicaCount: 1
-    image:
-      repository: pgpool/pgpool
-      tag: latest
-    config:
-      backend:
-#        master: mypg-rw.default.svc.cluster.local
-#        replica: mypg-ro.default.svc.cluster.local
-        master: "acid-minimal-cluster"
-        replica: "acid-minimal-cluster-repl"
-    service:
-      name: pgpool-service
-      port: 9999
-serviceAccount:
-  create: false
-  name: ""
-ingress:
-  enabled: false
-
 resources:
   spring:
     requests:
