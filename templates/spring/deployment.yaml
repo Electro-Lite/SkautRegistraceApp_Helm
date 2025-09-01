@@ -8,30 +8,35 @@ spec:
   replicas: {{ .Values.spring.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "SkautRegistraceChart.name" . }}-spring
+      {{- include "SkautRegistraceChart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "SkautRegistraceChart.name" . }}-spring
+        {{- include "SkautRegistraceChart.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: {{ .Chart.Name }}
+          image: "{{ printf "%s:%s" .Values.spring.repository .Values.spring.tag }}"
+          imagePullPolicy: {{ .Values.spring.pullPolicy }}
           resources:
             {{- toYaml .Values.resources.spring | nindent 12 }}
-          image: '{{ printf "%s:%s" .Values.spring.repository .Values.spring.tag }}'
-          imagePullPolicy: {{ .Values.spring.pullPolicy }}
           ports:
             - containerPort: 8080
           env:
             - name: POSTGRES_URL
-              value: "jdbc:postgresql://{{ .Values.postgres.service.name }}:{{ .Values.postgres.service.port }}/{{ .Values.postgres.db }}"
-              #value: "jdbc:postgresql://postgres-service:5432/vlcatashed"
+              value: {{ include "SkautRegistraceChart.postgresURL" . | quote }} # defined in _helper.tpl
             - name: POSTGRES_PASSWORD
+              {{- if  .Values.postgresStandalone.enabled }}  # postgres STADNALONE
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.postgres.secret.name }}
                   key: {{ .Values.postgres.secret.key }}
-
+              {{- else if .Values.postgresCluster.enabled }} # postgres CLUSTER
+              valueFrom:
+                secretKeyRef:
+                  name: "postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do"
+                  key: password
+              {{- end }}
           ### PROBES ###
           startupProbe:
             httpGet:
@@ -55,3 +60,4 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 30
             failureThreshold: 2
+

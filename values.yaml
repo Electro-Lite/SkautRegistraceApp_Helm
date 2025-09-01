@@ -13,14 +13,17 @@ spring:
     targetPort: 8080
     nodePort: 30000
 
-postgres:
+
+### POSTGRES ###
+# Only one should be enabled: Standalone/Cluster
+postgresStandalone:
+  enabled: false
   repository: postgres
   pullPolicy: IfNotPresent
   tag: 16-alpine
   replicaCount: 1
   user: "postgres"
-  #password: "changeMe" # intended to be rewriten with --set postgres.password="ActualPwd"
-  db: "vlcatashed"
+  db: "vlcatasched"
   secret: # the secret should be created before helm install, kubectl craete secret generic pwd-postgres --from-literal=POSTGRES_PASSWORD ="changeMe"
     name: pwd-postgres
     key:  POSTGRES_PASSWORD
@@ -32,6 +35,39 @@ postgres:
     port: 5432
     targetPort: 5432
 
+postgresCluster:
+  enabled: true
+  name: acid-minimal-cluster
+  teamId: acid
+  volumeSize: 1Gi
+  numberOfInstances: 3
+  users:
+    zalando:
+      - superuser
+      - createdb
+    foo_user: []
+  databases:
+    vlcatasched: postgres
+    foo: zalando
+  preparedDatabases:
+    bar: {}
+  postgresqlVersion: "16"
+
+  pgpool:
+    name: pgpool
+    replicaCount: 1
+    image:
+      repository: pgpool/pgpool
+      tag: latest
+    config:
+      backend:
+#        master: mypg-rw.default.svc.cluster.local
+#        replica: mypg-ro.default.svc.cluster.local
+        master: "acid-minimal-cluster"
+        replica: "acid-minimal-cluster-repl"
+    service:
+      name: pgpool-service
+      port: 5432
 serviceAccount:
   create: false
   name: ""

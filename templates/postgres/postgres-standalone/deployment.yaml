@@ -1,3 +1,4 @@
+{{- if .Values.postgresStandalone.enabled }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -67,4 +68,4 @@ spec:
             storage: 1Gi
         # Optional: make storageClass configurable
         # storageClassName: {{ .Values.postgres.storageClass | default "" }}
-
+{{- end }}

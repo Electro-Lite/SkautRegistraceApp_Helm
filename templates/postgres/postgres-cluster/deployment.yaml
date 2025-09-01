@@ -1,0 +1,34 @@
+{{- if .Values.postgresCluster.enabled }}
+apiVersion: "acid.zalan.do/v1"
+kind: postgresql
+metadata:
+  name: {{ .Values.postgresCluster.name }}
+spec:
+  teamId: {{ .Values.postgresCluster.teamId }}
+  volume:
+    size: {{ .Values.postgresCluster.volumeSize }}
+  numberOfInstances: {{ .Values.postgresCluster.numberOfInstances }}
+  users:
+{{- range $user, $roles := .Values.postgresCluster.users }}
+    {{ $user }}:
+{{- if $roles }}
+{{- range $role := $roles }}
+      - {{ $role }}
+{{- end }}
+{{- else }}
+      []
+{{- end }}
+{{- end }}
+  databases:
+{{- range $db, $owner := .Values.postgresCluster.databases }}
+    {{ $db }}: {{ $owner }}
+{{- end }}
+{{- if .Values.postgresCluster.preparedDatabases }}
+  preparedDatabases:
+{{- range $db, $config := .Values.postgresCluster.preparedDatabases }}
+    {{ $db }}: {{ if $config }}{{ toYaml $config | nindent 6 }}{{ else }} {}{{ end }}
+{{- end }}
+{{- end }}
+  postgresql:
+    version: "{{ .Values.postgresCluster.postgresqlVersion }}"
+{{- end }}

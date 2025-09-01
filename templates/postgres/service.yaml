@@ -1,12 +1,14 @@
+{{- if .Values.postgresStandalone.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.postgres.service.name }}
+  name: {{ .Values.postgresStandalone.service.name }}
 spec:
-  clusterIP: {{ .Values.postgres.service.clusterIP }}
+  clusterIP: {{ .Values.postgresStandalone.service.clusterIP }}
   selector:
     app: {{ include "SkautRegistraceChart.name" . }}-postgres
   ports:
-    - protocol: {{ .Values.postgres.service.protocol }}
-      port: {{ .Values.postgres.service.port }}
-      targetPort: {{ .Values.postgres.service.targetPort }}
+    - protocol: {{ .Values.postgresStandalone.service.protocol }}
+      port: {{ .Values.postgresStandalone.service.port }}
+      targetPort: {{ .Values.postgresStandalone.service.targetPort }}
+{{- end }}
