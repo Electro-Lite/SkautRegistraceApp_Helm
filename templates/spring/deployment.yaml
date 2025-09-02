@@ -23,23 +23,23 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: POSTGRES_USER
-              value: "postgres"
+#            - name: POSTGRES_USER
+#              value: "postgres"
             - name: POSTGRES_URL
-#              value: {{ include "SkautRegistraceChart.postgresURL" . | quote }} # defined in _helper.tpl
-              value: "jdbc:postgresql://acid-minimal-cluster.skaut.svc.cluster.local:5432/vlcatasched"
+              value: {{ include "SkautRegistraceChart.postgresURL" . | quote }} # defined in _helper.tpl
+#              value: "jdbc:postgresql://acid-minimal-cluster.skaut.svc.cluster.local:5432/vlcatasched"
             - name: POSTGRES_PASSWORD
-#              {{- if  .Values.postgresStandalone.enabled }}  # postgres STADNALONE
-#              valueFrom:
-#                secretKeyRef:
-#                  name: {{ .Values.postgres.secret.name }}
-#                  key: {{ .Values.postgres.secret.key }}
-#              {{- else if .Values.postgresCluster.enabled }} # postgres CLUSTER
+              {{- if  .Values.postgresStandalone.enabled }}  # postgres STADNALONE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secret.name }}
+                  key: {{ .Values.postgres.secret.key }}
+              {{- else if .Values.postgresCluster.enabled }} # postgres CLUSTER
               valueFrom:
                 secretKeyRef:
                   name: "postgres.acid-minimal-cluster.credentials.postgresql.acid.zalan.do"
                   key: password
-#              {{- end }}
+              {{- end }}
           ### PROBES ###
           startupProbe:
             httpGet:
