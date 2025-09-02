@@ -5,7 +5,8 @@ metadata:
 spec:
   type: {{ .Values.spring.service.type }}
   selector:
-    app: {{ include "SkautRegistraceChart.name" . }}-spring
+    {{- include "SkautRegistraceChart.selectorLabels" . | nindent 8 }}
+#    app: {{ include "SkautRegistraceChart.fullname" . }}-spring
   ports:
     - protocol: {{ .Values.spring.service.protocol }}
       port: {{ .Values.spring.service.port }}
