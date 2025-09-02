@@ -63,11 +63,5 @@ Create the name of the service account to use
 
 # Postres url
 {{- define "SkautRegistraceChart.postgresURL" -}}
-# Standalone
-{{- if .Values.postgresStandalone.enabled }}
-"jdbc:postgresql://{{ .Values.postgresStandalone.service.name }}:{{ .Values.postgresStandalone.service.port }}/{{ .Values.postgresStandalone.db }}"
-# Cluster
-{{- else if .Values.postgresCluster.enabled }}
-"jdbc:postgresql://{{ .Values.postgresCluster.pgpool.service.name }}:{{ .Values.postgresCluster.pgpool.service.port }}/vlcatasched"
-{{- end }}
+jdbc:postgresql://service/acid-minimal-cluster:{{ .Values.postgresService.port }}/{{ .Values.postgresService.db }}
 {{- end }}

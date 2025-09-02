@@ -23,17 +23,9 @@ postgresStandalone:
   tag: 16-alpine
   replicaCount: 1
   user: "postgres"
-  db: "vlcatasched"
   secret: # the secret should be created before helm install, kubectl craete secret generic pwd-postgres --from-literal=POSTGRES_PASSWORD ="changeMe"
     name: pwd-postgres
     key:  POSTGRES_PASSWORD
-
-  service:
-    name: "postgres-service"
-    clusterIP: None
-    protocol: "TCP"
-    port: 5432
-    targetPort: 5432
 
 postgresCluster:
   enabled: true
@@ -47,11 +39,22 @@ postgresCluster:
       - createdb
     foo_user: []
   databases:
-    vlcatasched: postgres
+    vlcatasched: zalando
     foo: zalando
   preparedDatabases:
     bar: {}
   postgresqlVersion: "16"
+
+postgresService:
+  db: "vlcatasched"
+  name: "postgres-service"
+  clusterIP: None
+  protocol: "TCP"
+  port: 5432
+  targetPort: 5432
+
+serviceAccount:
+  create: false
 
 resources:
   spring:
